@@ -153,3 +153,4 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
         echo "Building che plugin registry ${VERSION}."
         ${BUILDER} buildx ${BUILD_COMMAND} --platforms $PLATFORM --push $PUSH -t "${IMAGE}" -f "${DOCKERFILE}" .
     fi
+fi
