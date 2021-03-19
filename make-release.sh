@@ -1,4 +1,4 @@
-[[#!/bin/bash
+#!/bin/bash
 # Release process automation script. 
 # Used to create branch/tag, update VERSION files, create new che-theia and machine-exec plugins,
 # and and trigger release by force pushing changes to the release branch 
