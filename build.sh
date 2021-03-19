@@ -11,7 +11,7 @@
 set -e
 
 REGISTRY="quay.io"
-ORGANIZATION="eclipse"
+ORGANIZATION="prabhav"
 TAG="nightly"
 DOCKERFILE="./build/dockerfiles/Dockerfile"
 BUILD_FLAGS=""
