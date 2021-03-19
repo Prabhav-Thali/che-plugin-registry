@@ -77,15 +77,15 @@ function parse_arguments() {
             ;;
             --rhel)
             DOCKERFILE="./build/dockerfiles/rhel.Dockerfile"
-            shift
+            shift;
             ;;
             --buildx)
             BUILDX="true"
-            shift
+            shift;
             ;;
             -p|--platform)
             PLATFORM=$2
-            shift
+            shift;
             ;;
             --push)
             PUSH="true"
