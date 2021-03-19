@@ -85,7 +85,7 @@ function parse_arguments() {
             ;;
             -p|--platform)
             PLATFORM=$2
-            shift;
+            shift; shift;
             ;;
             --push)
             PUSH="true"
