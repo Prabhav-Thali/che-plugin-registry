@@ -151,6 +151,6 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
         IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
         VERSION=$(head -n 1 VERSION)
         echo "Building che plugin registry ${VERSION}."
-        ${BUILDER} buildx ${BUILD_COMMAND} --platforms $PLATFORM --push $PUSH -t "${IMAGE}" -f "${DOCKERFILE}" .
+        ${BUILDER} buildx ${BUILD_COMMAND} --platform $PLATFORM --push $PUSH -t "${IMAGE}" -f "${DOCKERFILE}" .
     fi
 fi
