@@ -106,6 +106,7 @@ echo "Build tooling..."
 yarn --cwd "$(pwd)/tools/build" build
 echo "Generate artifacts..."
 node -v
+file node
 eval node "${NODE_BUILD_OPTIONS}" tools/build/lib/entrypoint.js --output-folder:"$(pwd)/output" ${BUILD_FLAGS}
 
 if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
