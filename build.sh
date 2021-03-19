@@ -19,7 +19,7 @@ SKIP_OCI_IMAGE="false"
 NODE_BUILD_OPTIONS="${NODE_BUILD_OPTIONS:-}"
 BUILDX="false"
 PLATFORM=""
-PUSH="false"
+PUSH=""
 
 USAGE="
 Usage: ./build.sh [OPTIONS]
