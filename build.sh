@@ -44,7 +44,7 @@ Options:
     --platform
         Pass platform on image is to be built using GH actions
     --push
-        True if image is to be pushed to registry. False by default
+        Pass if image is to be pushed to registry
 "
 
 function print_usage() {
@@ -88,7 +88,7 @@ function parse_arguments() {
             shift; shift;
             ;;
             --push)
-            PUSH="true"
+            PUSH="--push"
             shift
             ;;
             *)
@@ -151,6 +151,6 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
         IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
         VERSION=$(head -n 1 VERSION)
         echo "Building che plugin registry ${VERSION}."
-        ${BUILDER} buildx ${BUILD_COMMAND} --platform $PLATFORM --push $PUSH -t "${IMAGE}" -f "${DOCKERFILE}" .
+        ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM $PUSH -f "${DOCKERFILE}" .
     fi
 fi
