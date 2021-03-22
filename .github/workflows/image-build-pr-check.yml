@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         dist: [ 'alpine', 'rhel' ]
-        arch: [amd64,arm64,ppc64le,s390x]
+        arch: [amd64,ppc64le,s390x]
     runs-on: ubuntu-20.04
     continue-on-error: true
     steps:
