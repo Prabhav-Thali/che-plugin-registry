@@ -62,10 +62,10 @@ jobs:
         export SKIP_TEST=true
         if [[ "${{matrix.dist}}" == "alpine" ]]; then
           docker pull quay.io/prabhav/che-plugin-registry:nightly
-          BUILDER=docker ./build.sh --tag pr-check-${{ matrix.arch }} --platform ${{ matrix.arch }} --buildx
+          BUILDER=docker ./build.sh --tag pr-check --platform ${{ matrix.arch }} --buildx
           EXPORTED_FOLDER=/usr/local/apache2/htdocs/v3
         elif [[ "${{matrix.dist}}" == "rhel" ]]; then
-          BUILDER=docker ./build.sh --rhel --tag pr-check-${{ matrix.arch }} --platform ${{ matrix.arch }} --buildx
+          BUILDER=docker ./build.sh --rhel --tag pr-check --platform ${{ matrix.arch }} --buildx
           EXPORTED_FOLDER=/var/www/html/v3
         fi
         ls -la output/

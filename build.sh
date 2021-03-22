@@ -20,6 +20,7 @@ NODE_BUILD_OPTIONS="${NODE_BUILD_OPTIONS:-}"
 BUILDX="false"
 PLATFORM=""
 PUSH=""
+PR_CHECK="false"
 
 USAGE="
 Usage: ./build.sh [OPTIONS]
@@ -150,10 +151,17 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
         echo "Building che plugin registry ${VERSION}."
         ${BUILDER} ${BUILD_COMMAND} -t "${IMAGE}" -f "${DOCKERFILE}" .
     else
-        echo "Building with $BUILDER buildx"
-        IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
-        VERSION=$(head -n 1 VERSION)
-        echo "Building che plugin registry ${VERSION}."
-        ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM $PUSH -f "${DOCKERFILE}" .
+        if [[ $PR_CHECK != "true" ]]; then
+            echo "Building with $BUILDER buildx"
+            IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
+            VERSION=$(head -n 1 VERSION)
+            echo "Building che plugin registry ${VERSION}."
+            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM $PUSH -f "${DOCKERFILE}" .
+        else 
+            echo "Building with $BUILDER buildx"
+            IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
+            VERSION=$(head -n 1 VERSION)
+            echo "Building che plugin registry ${VERSION}."
+            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM $PUSH -f "${DOCKERFILE}" --load .
     fi
 fi
