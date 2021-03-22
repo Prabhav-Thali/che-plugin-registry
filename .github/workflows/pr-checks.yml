@@ -11,7 +11,7 @@ name: PR Checks
 on:
   pull_request:
     branches: 
-      - master
+      - master2
 jobs:
   # check EOF newline
   linelint:
