@@ -61,7 +61,7 @@ jobs:
         export SKIP_LINT=true
         export SKIP_TEST=true
         if [[ "${{matrix.dist}}" == "alpine" ]]; then
-          docker pull quay.io/eclipse/che-plugin-registry:nightly
+          docker pull quay.io/prabhav/che-plugin-registry:nightly
           BUILDER=docker ./build.sh --tag pr-check-${{ matrix.arch }} --platform ${{ matrix.arch }} --buildx
           EXPORTED_FOLDER=/usr/local/apache2/htdocs/v3
         elif [[ "${{matrix.dist}}" == "rhel" ]]; then
@@ -69,8 +69,8 @@ jobs:
           EXPORTED_FOLDER=/var/www/html/v3
         fi
         ls -la output/
-        docker run --rm --entrypoint=sh quay.io/eclipse/che-plugin-registry:pr-check-${{ matrix.arch }} -c "ls -la ${EXPORTED_FOLDER}"
-        docker create --name pluginRegistry quay.io/eclipse/che-plugin-registry:pr-check-${{ matrix.arch }} sh
+        docker run --rm --entrypoint=sh quay.io/prabhav/che-plugin-registry:pr-check-${{ matrix.arch }} -c "ls -la ${EXPORTED_FOLDER}"
+        docker create --name pluginRegistry quay.io/prabhav/che-plugin-registry:pr-check-${{ matrix.arch }} sh
         mkdir root-dir
         docker cp pluginRegistry:${EXPORTED_FOLDER} root-dir/v3
         docker rm -f pluginRegistry
