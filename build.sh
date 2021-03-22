@@ -84,6 +84,10 @@ function parse_arguments() {
             BUILDX="true"
             shift;
             ;;
+            --pr-check)
+            PR_CHECK="true"
+            shift;
+            ;;
             -p|--platform)
             PLATFORM=$2
             shift; shift;
