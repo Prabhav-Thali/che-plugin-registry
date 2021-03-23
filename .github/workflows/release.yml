@@ -157,8 +157,8 @@ jobs:
           fetch-depth: 0
       - name: Perform release
         run: |
-          git config --global user.name "Mykhailo Kuznietsov"
-          git config --global user.email "mkuznets@redhat.com"
+          git config --global user.name "Prabhav Thali"
+          git config --global user.email "Prabhav.Thali1@ibm.com"
 
           export GITHUB_TOKEN=${{ secrets.CHE_BOT_GITHUB_TOKEN }}
 
