@@ -21,7 +21,17 @@ env:
 
 jobs:
   release-build-publish:
+    name: Create Che Plugin Registry Release
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64,arm64,ppc64le,s390x]
+    outputs:
+      amd64: ${{ steps.result.outputs.amd64 }}
+      arm64: ${{ steps.result.outputs.arm64 }}
+      ppc64le: ${{ steps.result.outputs.ppc64le }}
+      s390x: ${{ steps.result.outputs.s390x }}
     steps:
       - name: Clone source code
         uses: actions/checkout@v2
@@ -110,15 +120,15 @@ jobs:
       -
         name: "Create and push manifest"
         run: |
-          AMD64_VERSION="${{ needs['build-images'].outputs.amd64 }}"
-          ARM64_VERSION="${{ needs['build-images'].outputs.arm64 }}"
-          PPC64LE_VERSION="${{ needs['build-images'].outputs.ppc64le }}"
-          S390X_VERSION="${{ needs['build-images'].outputs.s390x }}"
+          AMD64_VERSION="${{ needs['release-build-publish'].outputs.amd64 }}"
+          ARM64_VERSION="${{ needs['release-build-publish'].outputs.arm64 }}"
+          PPC64LE_VERSION="${{ needs['release-build-publish'].outputs.ppc64le }}"
+          S390X_VERSION="${{ needs['release-build-publish'].outputs.s390x }}"
           if [[ -z "$AMD64_VERSION" || \
               -z "$ARM64_VERSION" || \
               -z "$PPC64LE_VERSION" || \
               -z "$S390X_VERSION" ]]; then
-              echo "[!] The job 'build-images' fails on some of the architectures. Can't create complete manifest.";
+              echo "[!] The job 'release-build-publish' fails on some of the architectures. Can't create complete manifest.";
               exit 1;
           fi
           AMEND=""
