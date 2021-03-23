@@ -86,7 +86,7 @@ jobs:
       - id: result
         name: "Build result outputs version"
         if: ${{ success() }}
-        run: echo "::set-output name=${{ matrix.arch }}::${{ env.VERSION }}-${{ matrix.arch }}"
+        run: echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
 
   create-manifest:
     needs: release-build-publish
