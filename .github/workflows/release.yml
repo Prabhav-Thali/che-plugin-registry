@@ -79,7 +79,7 @@ jobs:
         run: echo "::set-output name=${{ matrix.arch }}::${{ env.VERSION }}-${{ matrix.arch }}"
 
   create-manifest:
-    needs: build
+    needs: release-build-publish
     runs-on: ubuntu-latest
     steps:
       -
