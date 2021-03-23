@@ -55,6 +55,9 @@ if [[ $TMP ]] && [[ -d $TMP ]]; then
 fi
 
 # get sources from ${BASEBRANCH} branch
+echo "Check out ${REPO} to ${TMP}/${REPO##*/}"
+git clone "${REPO}" -q
+cd "${REPO##*/}" || exit 1
 fetchAndCheckout "${BASEBRANCH}"
 
 # create new branch off ${BASEBRANCH} (or check out latest commits if branch already exists), then push to origin
@@ -170,9 +173,8 @@ if [[ ${BASEBRANCH} != "master" ]]; then
   commitChangeOrCreatePR "${VERSION}" "master" "pr-add-${VERSION}-plugins-to-master"
 fi
 
-popd > /dev/null || exit
-
 # cleanup tmp dir
 if [[ $TMP ]] && [[ -d $TMP ]]; then
+  popd > /dev/null || exit
   rm -fr "$TMP"
 fi
