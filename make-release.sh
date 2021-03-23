@@ -7,7 +7,7 @@
 TAG_RELEASE=0 
 NOCOMMIT=0
 TMP=""
-REPO=git@github.com:prabhav-thali/che-plugin-registry
+REPO=git@github.com:Prabhav-Thali/che-plugin-registry
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
