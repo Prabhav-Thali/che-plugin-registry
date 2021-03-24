@@ -81,7 +81,7 @@ jobs:
       - name: image-build
         run: |
           docker pull quay.io/eclipse/che-plugin-registry:nightly
-          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ github.event.inputs.version }} --platform ${{ matrix.arch }} --buildx --push
+          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ github.event.inputs.version }} --platform ${{ matrix.arch }} --buildx
 
       - id: result
         name: "Build result outputs version"

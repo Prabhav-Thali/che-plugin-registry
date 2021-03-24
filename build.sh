@@ -19,7 +19,6 @@ SKIP_OCI_IMAGE="false"
 NODE_BUILD_OPTIONS="${NODE_BUILD_OPTIONS:-}"
 BUILDX="false"
 PLATFORM=""
-PUSH=""
 PR_CHECK="false"
 
 USAGE="
@@ -44,8 +43,8 @@ Options:
         Build using buildx in GH actions
     --platform
         Pass platform on image is to be built using GH actions
-    --push
-        Pass if image is to be pushed to registry
+    --pr-check
+        Build image using --load flag
 "
 
 function print_usage() {
@@ -84,16 +83,12 @@ function parse_arguments() {
             BUILDX="true"
             shift;
             ;;
-            --pr-check)
-            PR_CHECK="true"
-            shift;
-            ;;
             -p|--platform)
             PLATFORM=$2
             shift; shift;
             ;;
-            --push)
-            PUSH="--push"
+            --pr-check)
+            PR_CHECK="true"
             shift
             ;;
             *)
@@ -110,10 +105,6 @@ yarn
 echo "Build tooling..."
 yarn --cwd "$(pwd)/tools/build" build
 echo "Generate artifacts..."
-node -v
-file $(which node)
-echo ${NODE_BUILD_OPTIONS}
-echo ${BUILD_FLAGS}
 eval node "${NODE_BUILD_OPTIONS}" tools/build/lib/entrypoint.js --output-folder:"$(pwd)/output" ${BUILD_FLAGS}
 
 if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
@@ -160,13 +151,13 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
             IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
             VERSION=$(head -n 1 VERSION)
             echo "Building che plugin registry ${VERSION}."
-            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM $PUSH -f "${DOCKERFILE}" .
+            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform "$PLATFORM" -f "${DOCKERFILE}" --push .
         else 
             echo "Building with $BUILDER buildx"
             IMAGE="${REGISTRY}/${ORGANIZATION}/che-plugin-registry:${TAG}-$PLATFORM"
             VERSION=$(head -n 1 VERSION)
             echo "Building che plugin registry ${VERSION}."
-            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform $PLATFORM -f "${DOCKERFILE}" --load .
+            ${BUILDER} buildx ${BUILD_COMMAND} -t "${IMAGE}" --platform "$PLATFORM" -f "${DOCKERFILE}" --load .
         fi
     fi
 fi

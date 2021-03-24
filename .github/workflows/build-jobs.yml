@@ -12,7 +12,7 @@ name: Build/Publish
 on:
   push:
     branches: 
-      - master2
+      - master
 
 env:
   IMAGE: quay.io/prabhav/che-plugin-registry
@@ -81,7 +81,7 @@ jobs:
       - name: image-build
         run: |
           docker pull quay.io/eclipse/che-plugin-registry:nightly
-          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ env.VERSION }} --platform ${{ matrix.arch }} --buildx --push
+          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ env.VERSION }} --platform ${{ matrix.arch }} --buildx
 
       - id: result
         name: "Build result outputs version"
