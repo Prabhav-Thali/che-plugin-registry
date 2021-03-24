@@ -89,8 +89,8 @@ jobs:
         name: "Build result outputs version"
         if: ${{ success() }}
         run: |
-        docker buildx ls
-        echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
+          docker buildx ls
+          echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
 
   create-manifest:
     needs: release-build-publish
