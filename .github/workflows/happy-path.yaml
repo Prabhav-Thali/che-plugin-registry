@@ -70,14 +70,14 @@ jobs:
           export SKIP_LINT=true
           export SKIP_TEST=true
           if [[ "${{matrix.dist}}" == "alpine" ]]; then
-            docker pull quay.io/eclipse/che-plugin-registry:nightly
+            docker pull quay.io/prabhav/che-plugin-registry:nightly
             BUILDER=docker ./build.sh --tag happy-path
           elif [[ "${{matrix.dist}}" == "rhel" ]]; then
             BUILDER=docker ./build.sh --rhel --tag happy-path
           fi  
 
           # save locally built image
-          docker save -o docker-image.tar quay.io/eclipse/che-plugin-registry:happy-path
+          docker save -o docker-image.tar quay.io/prabhav/che-plugin-registry:happy-path
       - name: Start minikube
         id: run-minikube
         uses: che-incubator/setup-minikube-action@next
@@ -94,7 +94,7 @@ jobs:
         uses: che-incubator/che-deploy-action@next
         with:
           # use custom image built by this PR
-          plugin-registry-image: quay.io/eclipse/che-plugin-registry:happy-path
+          plugin-registry-image: quay.io/prabhav/che-plugin-registry:happy-path
       - name: Run Happy Path tests
         id: run-happy-path-tests
         uses: che-incubator/happy-path-tests-action@next
