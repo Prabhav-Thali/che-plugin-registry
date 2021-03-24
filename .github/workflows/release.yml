@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [amd64,arm64,ppc64le,s390x]
+        arch: [s390x]
     outputs:
       amd64: ${{ steps.result.outputs.amd64 }}
       arm64: ${{ steps.result.outputs.arm64 }}
@@ -80,13 +80,17 @@ jobs:
 
       - name: image-build
         run: |
+          docker buildx ls
           docker pull quay.io/eclipse/che-plugin-registry:nightly
           BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ github.event.inputs.version }} --platform ${{ matrix.arch }} --buildx
+          docker buildx ls
 
       - id: result
         name: "Build result outputs version"
         if: ${{ success() }}
-        run: echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
+        run: |
+        docker buildx ls
+        echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
 
   create-manifest:
     needs: release-build-publish
@@ -155,7 +159,7 @@ jobs:
         uses: actions/checkout@v1
         with:
           fetch-depth: 0
-      - name: Perform release
+      - name: Tag release
         run: |
           git config --global user.name "Prabhav Thali"
           git config --global user.email "Prabhav.Thali1@ibm.com"
