@@ -11,11 +11,7 @@
 # Publish automated plugin report to GH pages
 name: publish
 
-on:
-  push:
-    branches: [ master2 ]
-  schedule:
-    - cron:  '0 1 * * *'
+
 jobs:
   publish:
     env:

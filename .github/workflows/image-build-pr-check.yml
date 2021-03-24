@@ -9,7 +9,7 @@
 
 name: Image Build PR check
 
-on: [push, pull_request]
+#on: [push, pull_request]
 
 jobs:
   image-build:
