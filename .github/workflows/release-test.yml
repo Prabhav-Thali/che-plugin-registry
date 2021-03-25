@@ -21,7 +21,6 @@ env:
 
 jobs:
   release-build-publish:
-    name: Create Che Plugin Registry Release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -34,7 +33,7 @@ jobs:
       s390x: ${{ steps.result.outputs.s390x }}
     steps:
       - name: Clone source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
         with:
           fetch-depth: 0
 
