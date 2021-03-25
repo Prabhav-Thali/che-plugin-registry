@@ -33,26 +33,26 @@ jobs:
       s390x: ${{ steps.result.outputs.s390x }}
     steps:
       - name: Clone source code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-
       - name: "Set up QEMU"
         uses: docker/setup-qemu-action@v1
-
       - name: "Set up Docker Buildx ${{ matrix.arch }}"
         uses: docker/setup-buildx-action@v1
-
-      - name: Login to quay.io
+      - name: Login to Quay.io
         uses: docker/login-action@v1
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -81,23 +81,22 @@ jobs:
       - name: image-build
         run: |
           docker pull quay.io/eclipse/che-plugin-registry:nightly
-          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ env.VERSION }} --platform ${{ matrix.arch }} --buildx
+          BUILDER=docker SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --tag ${{ github.event.inputs.version }} --platform ${{ matrix.arch }} --buildx
 
       - id: result
         name: "Build result outputs version"
         if: ${{ success() }}
-        run: echo "::set-output name=${{ matrix.arch }}::${{ env.VERSION }}-${{ matrix.arch }}"
+        run: echo "::set-output name=${{ matrix.arch }}::${{ github.event.inputs.version }}-${{ matrix.arch }}"
 
   create-manifest:
-    if: always()
     needs: release-build-publish
     runs-on: ubuntu-latest
     steps:
       -
-        name: "Checkout  source code"
+        name: "Checkout source code"
         uses: actions/checkout@v1
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - 
         name: Prepare
         id: prep
@@ -111,31 +110,65 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      -  
+      - 
+        name: Login to docker.io
+        uses: docker/login-action@v1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      -
         name: "Create and push manifest"
         run: |
+          AMD64_VERSION="${{ needs['release-build-publish'].outputs.amd64 }}"
+          ARM64_VERSION="${{ needs['release-build-publish'].outputs.arm64 }}"
+          PPC64LE_VERSION="${{ needs['release-build-publish'].outputs.ppc64le }}"
+          S390X_VERSION="${{ needs['release-build-publish'].outputs.s390x }}"
+          if [[ -z "$AMD64_VERSION" || \
+              -z "$ARM64_VERSION" || \
+              -z "$PPC64LE_VERSION" || \
+              -z "$S390X_VERSION" ]]; then
+              echo "[!] The job 'release-build-publish' fails on some of the architectures. Can't create complete manifest.";
+              exit 1;
+          fi
           AMEND=""
-          AMD64_VERSION="${{ needs['nightly-build-publish'].outputs.amd64 }}"
-          if [ -n "$AMD64_VERSION" ]; then
-            AMEND+=" --amend ${{ env.IMAGE }}:$AMD64_VERSION";
-          fi
-          ARM64_VERSION="${{ needs['nightly-build-publish'].outputs.arm64 }}"
-          if [ -n "$ARM64_VERSION" ]; then
-            AMEND+=" --amend ${{ env.IMAGE }}:$ARM64_VERSION";
-          fi
-          PPC64LE_VERSION="${{ needs['nightly-build-publish'].outputs.ppc64le }}"
-          if [ -n "$PPC64LE_VERSION" ]; then
-            AMEND+=" --amend ${{ env.IMAGE }}:$PPC64LE_VERSION";
-          fi
-          S390X_VERSION="${{ needs['nightly-build-publish'].outputs.s390x }}"
-          if [ -n "$S390X_VERSION" ]; then
-            AMEND+=" --amend ${{ env.IMAGE }}:$S390X_VERSION";
-          fi
-          if [ -z "$AMEND" ]; then
-            echo "[!] The job 'nightly-build-publish' didn't provide any outputs. Can't create the manifest list."
-            exit 1;
-          fi
-          docker manifest create ${{ env.IMAGE }}:${{ env.VERSION }} $AMEND
-          docker manifest push ${{ env.IMAGE }}:${{ env.VERSION }}
+          AMEND+=" --amend ${{ env.IMAGE }}:$AMD64_VERSION";
+          AMEND+=" --amend ${{ env.IMAGE }}:$ARM64_VERSION";
+          AMEND+=" --amend ${{ env.IMAGE }}:$PPC64LE_VERSION";
+          AMEND+=" --amend ${{ env.IMAGE }}:$S390X_VERSION";
+          docker manifest create ${{ env.IMAGE }}:${{ github.event.inputs.version }} $AMEND
+          docker manifest push ${{ env.IMAGE }}:${{ github.event.inputs.version }}
           docker manifest create ${{ env.IMAGE }}:${{ steps.prep.outputs.short_sha1 }} $AMEND
           docker manifest push ${{ env.IMAGE }}:${{ steps.prep.outputs.short_sha1 }}
+      -
+        id: result
+        name: "Manifest result"
+        if: ${{ success() }}
+        run: echo "Manifest was created and pushed successfully"
+
+  tag-release:
+    needs: create-manifest
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: "Checkout source code"
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - name: Tag release
+        run: |
+          git config --global user.name "Prabhav Thali"
+          git config --global user.email "Prabhav.Thali1@ibm.com"
+
+          export GITHUB_TOKEN=${{ secrets.CHE_BOT_GITHUB_TOKEN }}
+
+          ./make-release.sh --version ${{ github.event.inputs.version}} --tag-release
+      - name: Create MM message
+        run: |
+          echo "{\"text\":\":building_construction: Che Plugin Registry ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-plugin-registry:${{ github.event.inputs.version }}\"}" > mattermost.json
+      - name: Send MM message
+        uses: mattermost/action-mattermost-notify@master
+        env:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+          MATTERMOST_CHANNEL: eclipse-che-releases
+          MATTERMOST_USERNAME: che-bot
